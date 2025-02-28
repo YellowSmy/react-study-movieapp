@@ -1,45 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 
 import Movie from '../components/Movie';
 
 import '../routes/Home.css';
 
-class Home extends React.Component { 
-    state = {
-        isLoading: true,
-        movies: [],
-    };
+function Home () { 
+  const [isLoading, setIsLoading] = useState(true);
+  const [movies, setMovies] = useState([]);
 
-    //async handler
-    // arrow function 이용 시 this를 bind 해주지 않아도 됨.
-    getMovies = async () => {
+
+  //async handler
+   // arrow function 이용 시 this를 bind 해주지 않아도 됨.
+  const getMovies = async () => {
       //Destructuring Assignment from ES6
       const {
         data: {
           data: {movies}
         }
       } = await axios.get("https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating");
-      this.setState({ movies, isLoading: false });
-    };
+      
+      setMovies(movies);
+      setIsLoading(false);
+  };
 
-    //First callback method after mount
-    componentDidMount() {
-      this.getMovies();
-    }
+  //First callback method after mount
+  // second argument is depend. checkout the doc.
+  useEffect(() => {
+      getMovies();
+  }, []);
 
-    render() {
-      const {isLoading, movies} = this.state;
-      return (
-        <section className="container">
-          { isLoading ? (
-            <div className="loader">
-              <span className="loader_text">Loading...</span>
-            </div>
-          ) : (
-            <div className="movies">
-              {
-                movies.map( movies => (
+  return (
+    <section className="container">
+        { isLoading ? (
+          <div className="loader">
+            <span className="loader_text">Loading...</span>
+          </div>
+        ) : (
+          <div className="movies">
+            {
+              movies.map( movies => (
                   <Movie 
                     key={movies.id}
                     id={movies.id} 
@@ -49,11 +49,10 @@ class Home extends React.Component {
                     poster={movies.medium_cover_image}
                     genres = {movies.genres} 
                   />
-                ))}
-            </div>
-          )}
-        </section>
-    )};
-}
+              ))}
+          </div>
+        )}
+      </section>
+  )};
 
 export default Home
